@@ -1,28 +1,52 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 function App() {
-  const [greeting, setGreeting] = useState('');
+  const [boardData, setBoardData] = useState(null as any)
+
+  useEffect(()=>{
+    if(boardData != null) return;
+
+    fetch(`${import.meta.env.VITE_CANISTER_URL}/board`)
+      .then(response => response.json()).then((json) => {
+        setBoardData(json)
+      });
+
+  },[boardData])
 
   function handleSubmit(event: any) {
     event.preventDefault();
     const name = event.target.elements.name.value;
-    fetch(`${import.meta.env.VITE_CANISTER_URL}/greet?name=${name}`)
+    const message = event.target.elements.message.value;
+    fetch(`${import.meta.env.VITE_CANISTER_URL}/board/post`,{
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name,
+        message
+      })
+    })
       .then(response => response.json()).then((json) => {
-        setGreeting(json.greeting)
+        setBoardData(null)
       });
   }
 
   return (
     <main>
-      <img src="/logo2.svg" alt="DFINITY logo" />
+      <center><strong>IC Proclamation</strong></center>
       <br />
       <br />
       <form action="#" onSubmit={handleSubmit}>
         <label htmlFor="name">Enter your name: &nbsp;</label>
         <input id="name" alt="Name" type="text" />
-        <button type="submit">Click Me!</button>
+
+        <label htmlFor="message">Enter your message: &nbsp;</label>
+        <input id="message" alt="Message" type="text" />
+
+        <button type="submit">Proclaim!</button>
       </form>
-      <section id="greeting">{greeting}</section>
+      <section id="board">{boardData && boardData.map((x: any) => (<p><strong>{x.name}</strong>: {x.message} - {new Date(x.date_added).toLocaleString()}</p>))}</section>
     </main >
   );
 }

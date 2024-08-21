@@ -35,3 +35,10 @@ button[type="submit"] {
 #greeting:empty {
   display: none;
 }
+
+#board {
+  text-align: center;
+  margin: 10px auto;
+  padding: 10px 60px;
+  border: 1px solid #222;
+}
